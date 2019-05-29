@@ -21,7 +21,7 @@ library(tidyr)
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ------------------------------------------------------------------------------------------------ tidyverse 1.2.1 --
+    ## -- Attaching packages ----------------------------------------------------------------------------------------------- tidyverse 1.2.1 --
 
     ## v ggplot2 3.0.0     v purrr   0.2.5
     ## v tibble  2.0.1     v stringr 1.3.1
@@ -29,7 +29,7 @@ library(tidyverse)
 
     ## Warning: package 'tibble' was built under R version 3.5.2
 
-    ## -- Conflicts --------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts -------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
