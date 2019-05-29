@@ -21,7 +21,7 @@ library(tidyr)
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------- tidyverse 1.2.1 --
+    ## -- Attaching packages ------------------------------------------------------------------------------------------------ tidyverse 1.2.1 --
 
     ## v ggplot2 3.0.0     v purrr   0.2.5
     ## v tibble  2.0.1     v stringr 1.3.1
@@ -29,14 +29,53 @@ library(tidyverse)
 
     ## Warning: package 'tibble' was built under R version 3.5.2
 
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+    ## -- Conflicts --------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
 ``` r
 library(tibble)
 library(ggplot2)
+library(ggpubr)
 ```
+
+    ## Warning: package 'ggpubr' was built under R version 3.5.3
+
+    ## Loading required package: magrittr
+
+    ## 
+    ## Attaching package: 'magrittr'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     set_names
+
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     extract
+
+``` r
+library(gridExtra)
+```
+
+    ## Warning: package 'gridExtra' was built under R version 3.5.3
+
+    ## 
+    ## Attaching package: 'gridExtra'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     combine
+
+``` r
+library(grid)
+library(lattice)
+
+# Load
+library(wesanderson)
+```
+
+    ## Warning: package 'wesanderson' was built under R version 3.5.3
 
 Load Data
 ---------
@@ -51,22 +90,185 @@ data.frame(marvel_data) -> marvel_df
 data.frame(comic_data) -> comic_df
 ```
 
-``` r
-ggplot(data=comic_df, aes(x= YEAR, y=SEX)) +
-  geom_point(aes(color=brand))
-```
+Different types of characters - Genderfluid, agender, transgender, male, genderless, female
 
-    ## Warning: Removed 884 rows containing missing values (geom_point).
-
-![](HW03-Part2_files/figure-markdown_github/unnamed-chunk-3-1.png)
+No Dual Identity, Known to Authorities, Secret Identity, Public Identity, Identity Unknown
 
 ``` r
-ggplot(data=comic_df, aes(x= SEX, y=ID)) +
-  geom_point(aes(color=brand))
+par(mfrow=c(2,1))
+dc_female <- dc_df %>%
+  filter(ID !="") %>%
+  filter(SEX == "Female Characters") %>%
+  ggplot(aes(x=YEAR)) +
+  geom_bar(aes(fill = ID), position = "fill") +
+  ggtitle("Female Characters in DC Comics") +
+  scale_fill_manual(values=c("#990000", "#FF9999")) + 
+  xlab(" ") +
+  theme(legend.direction = "horizontal", 
+        legend.position = "bottom",
+        legend.box = "horizontal") + 
+  theme(plot.title = element_text(size = 10, hjust = 0.5)) +
+  labs(y = "Proportion")  + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()) 
+
+dc_male <- dc_df %>%
+  filter(ID != "Identity Unknown") %>%
+  filter(ID != "") %>%
+  filter(SEX == "Male Characters") %>%
+  ggplot(aes(x=YEAR)) +
+  geom_bar(aes(fill = ID), position = "fill") +
+  scale_fill_manual(values=c("#990000", "#FF9999")) + 
+  ggtitle("Male Characters in DC Comics") +
+  xlab(" ") +
+  ylab(" ") + 
+  theme(plot.title = element_text(size = 10, hjust = 0.5)) +
+  labs(x = "Year", y = "Proportion")  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()) 
 ```
 
-![](HW03-Part2_files/figure-markdown_github/unnamed-chunk-4-1.png)
+``` r
+marvel_female <- marvel_df %>%
+  filter(ID !="") %>%
+  filter(ID != "No Dual Identity") %>%
+  filter(ID != "Known to Authorities Identity") %>%
+  filter(SEX == "Female Characters") %>%
+  ggplot(aes(x=YEAR)) +
+  geom_bar(aes(fill = ID), position = "fill") +
+  scale_fill_manual(values=c("#990000", "#FF9999")) +
+  ggtitle("Female Characters in Marvel Comics") + 
+  theme(plot.title = element_text(size = 10, hjust = 0.5)) +
+  labs(x = "", y = "")  +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()) 
 
-Comic Book characters: Private identity by sex, year of publication and publication (Marvel or DC)
+marvel_male <- marvel_df %>%
+  filter(ID !="") %>%
+  filter(ID != "No Dual Identity") %>%
+  filter(ID != "Known to Authorities Identity") %>%
+  filter(SEX == "Male Characters") %>%
+  ggplot(aes(x=YEAR)) +
+  geom_bar(aes(fill = ID), position = "fill") +
+  scale_fill_manual(values=c("#990000", "#FF9999")) + 
+  ggtitle("Male Characters in Marvel Comics") +
+  ylab(" ") + 
+  theme(plot.title = element_text(size = 10, hjust = 0.5)) +
+  labs(x = "Year") + 
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()) 
+```
 
-Is it truthful? Is it functional? Is it beautiful? Is it insightful? Is it enlightening?
+``` r
+get_legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+mylegend <- get_legend(dc_female)
+```
+
+    ## Warning: Removed 7 rows containing non-finite values (stat_count).
+
+``` r
+grid.arrange(
+  arrangeGrob(
+  dc_female + theme(legend.position="none"), 
+  marvel_female + theme(legend.position="none"),
+  dc_male + theme(legend.position="none"), 
+  marvel_male + theme(legend.position="none"), nrow = 2, ncol = 2), 
+  mylegend, nrow = 2, heights= c(5, 0.5),
+  top = textGrob("\n The Change in Comic Book Character's Identity Secrecy Over Time\n",gp=gpar(fontsize=15,font=3)))
+```
+
+    ## Warning: Removed 7 rows containing non-finite values (stat_count).
+
+    ## Warning: Removed 112 rows containing non-finite values (stat_count).
+
+    ## Warning: Removed 33 rows containing non-finite values (stat_count).
+
+    ## Warning: Removed 322 rows containing non-finite values (stat_count).
+
+![](HW03-Part2_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+------------------------------------------------------------------------
+
+Write UP:
+---------
+
+The Change in Proportion of Secret identity of Comic Book Characters over Time, seperated by Gender and Brand Data Source: <https://data.fivethirtyeight.com/>
+
+### Some design choices:
+
+#### Functional:
+
+###### Type of graph
+
+-   Bar with fill allows presenting change over time of public/private identity on the same graph
+
+###### Using proprotion over count
+
+-   The actual number is not important, it is just meant to be a comparison and proportions do just that.
+-   The number of data points is different between marvel and dc dataset
+
+###### Seperating data of two comic book brands
+
+-   instead of using one combined dataset, the seperation allows a broader comparison of trends
+
+###### Arrangement of grid
+
+-   stacking the male/female comparison while horizontally displaying the brands
+-   Initially, the male and female characters were side by side but the orientation was changed to aid in gauging the trend over the years as there is a repetitive pattern and it is hard to glean insights without this.
+
+#### Aesthetics:
+
+###### Changing the color
+
+-   Default color of coral and green was changed to enhance the look.
+
+###### Leaving axis marks
+
+-   Axis marks provide better readability but some of the axis labels are removed to reduce redundancy
+-   The exact proprotion number is not necessary but it was left in as it does not detract and does help and know in the scale for each of the graph truthfully
+
+###### Remove the background grid for subplots
+
+-   The default grey background with grid is removed as it is not necessary and this provided a cleaner look.
+
+### Evaluating using Alberto Cairo's criteria
+
+##### Is it truthful?
+
+The graphs uses the data as acquired with only minor manipulation so there is representation is truthful. The graph is limited to male and female characters as the data as there is limited data point for genderfluid, transgender and other gender types. The unknown and missing identities are also removed. No attempt is made to skew the data or misrepresent the data. The graph is straightforward and gives the reader an opportunity to easily scrutinize it without misleading them.
+
+##### Is it functional?
+
+The graph is meant to provide a quick glance at how the author's decision to make comic book characters secret or public has changed over time and if there any difference between female characters and male characters? Also, is this trend the same accross brands? The graph clearly acheives that objective by presenting the comparision in form of proportion and side by side.
+
+##### Is it beautiful?
+
+The graph is consistent and readable with right amount of information on it. The color scheme is pretty and uses the same palette. The graph is quite basic and functionality to interact with it would enhance it but for the purpose of conveying the message it is aesthetically appropriate.
+
+##### Is it insightful?
+
+Yes. Just by a quick look, there is a repeating pattern to how many characters have public identity versus private identity. It is also evident that accross comic brands (Marvel and DC), more men seem to have secret identity. While looking at the latest trends in DC comics, trend for men having a secret identity is increasing by no such trend is seen for women.
+
+##### Is it enlightening?
+
+While the trend of how the choice of comic book character's identity has changed over time is not of critical global interest, this information is useful in enlightening one about trends in a popular pop culture artefact. Comic books have been an important part of entertainment reading and has gone on to become a multibillion dollar motion picture and merchandise revenue generator so representation of characters can certainly yield insights of greater social dynamics. Comic book industry was typically male dominated but with transforming demographics of the readership, has the representation changed? Can we make any meaningful inference on how comic book authors intend to portray women based on whether they have a secret or public identity? To draw such conclusions, additional qualitative analysis on the comic book character's back story and reason for identity reveal or conceal needs to be conducted. While the graph does not provide the answer, it certainly provides a trend that begs further study.
+
+Article on women in comic books: <https://fivethirtyeight.com/features/women-in-comic-books/>
